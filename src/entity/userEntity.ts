@@ -10,6 +10,7 @@ export class User {
   @Column({
   type: 'varchar',  
   unique: true,
+  nullable: true,
   transformer:{
     to: (value: string) => value.toLowerCase(),
     from: (value: string) => value

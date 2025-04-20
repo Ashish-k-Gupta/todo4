@@ -10,8 +10,11 @@ export class Task{
     @Column()    
     title!: string;
 
+    @Column({default: false})
+    isDone!: boolean
+
     @Column()
-    descritpion!: string;
+    description!: string;
 
     @CreateDateColumn({default: Timestamp})
     createdAt!: Date;
