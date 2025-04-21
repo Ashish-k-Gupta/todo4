@@ -57,6 +57,7 @@ export const protect: RequestHandler = async (
     }
 
     const token = authHeader.split(' ')[1];
+    console.log('Token', token)
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
         const userRepo = AppDataSource.getRepository(User);

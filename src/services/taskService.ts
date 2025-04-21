@@ -1,7 +1,9 @@
+import { stat } from "fs";
 import { AppDataSource } from "../data-source";
 import { Task } from "../entity/taskEntity";
 import { User } from "../entity/userEntity";
 import { AppError } from "../utils/errorHandler";
+import { deleteTask } from "../controllers/taskController";
 
 
 export class TaskService{
@@ -46,12 +48,6 @@ export class TaskService{
     }
 }
 
-   
-
-
-
-
-
     static async getTasks(userId: string):Promise<Task[]>{
         try{
             const taskRepo = AppDataSource.getRepository(Task)
@@ -70,4 +66,24 @@ export class TaskService{
             throw new AppError(error.message || "Failed to retrieve tasks", 500);
         }
         }
+
+    static async deleteTask(userId: string, taskId: string): Promise<Task>{
+        try{
+            const taskRepo = AppDataSource.getRepository(Task)
+            const task = await taskRepo.findOne({
+                where: { id: taskId, user: { id: userId } } 
+              });
+              if(!task){
+                throw new AppError("Task not found", 404)
+            }
+            await taskRepo.delete(taskId)
+            return task
+
+           
+        } 
+        catch (error: any) {
+            throw new AppError(error.message || 'Failed to delete task', 500);
+        }        
+}
+
 }

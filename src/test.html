@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>API Test</title>
+  <style>
+    .task {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 5px;
+      border-radius: 5px;
+    }
+    .task button {
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Login</h2>
+  <button onclick="login()">Login</button>
+
+  <h2>Get Tasks</h2>
+  <button onclick="getTasks()">Get Tasks</button>
+
+  <h2>Create Task</h2>
+  <input type="text" id="title" placeholder="Title" />
+  <input type="text" id="description" placeholder="Description" />
+  <button onclick="createTask()">Create Task</button>
+
+  <h2>Tasks</h2>
+  <div id="taskList"></div>
+
+  <h2>Output</h2>
+  <pre id="output"></pre>
+
+  <script>
+    let authToken = null;
+
+    async function login() {
+      try {
+        const res = await fetch('http://localhost:5001/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: 'theashukumar007@gmail.com',
+            password: 'Test@1234'
+          })
+        });
+
+        if (!res.ok) throw new Error('Login failed');
+
+        const data = await res.json();
+        authToken = data.token;
+        document.getElementById('output').textContent = 'Login successful.';
+      } catch (error) {
+        document.getElementById('output').textContent = `Error: ${error.message}`;
+      }
+    }
+
+    async function getTasks() {
+      if (!authToken) {
+        document.getElementById('output').textContent = 'Please login first.';
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:5001/api/tasks', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+
+        if (!res.ok) throw new Error('Failed to fetch tasks');
+
+        const data = await res.json();
+        const taskArray = Array.isArray(data) ? data : data.tasks;
+        displayTasks(taskArray);
+      } catch (error) {
+        document.getElementById('output').textContent = `Error: ${error.message}`;
+      }
+    }
+
+    function displayTasks(tasks) {
+      const taskList = document.getElementById('taskList');
+      taskList.innerHTML = ''; // Clear previous
+
+      tasks.forEach(task => {
+        const div = document.createElement('div');
+        div.className = 'task';
+        div.innerHTML = `
+          <strong>${task.title}</strong><br>
+          ${task.description}<br>
+          <label>
+            <input type="checkbox" ${task.isDone ? 'checked' : ''} onclick="updateTask('${task.id}', this.checked)" />
+            Mark as done
+          </label>
+          <button onclick="deleteTask('${task.id}')">Delete</button>
+        `;
+        taskList.appendChild(div);
+      });
+    }
+
+    async function createTask() {
+      if (!authToken) {
+        document.getElementById('output').textContent = 'Please login first.';
+        return;
+      }
+
+      const title = document.getElementById('title').value.trim();
+      const description = document.getElementById('description').value.trim();
+
+      if (!title || !description) {
+        document.getElementById('output').textContent = 'Please enter both title and description.';
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:5001/api/tasks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ title, description })
+        });
+
+        if (!res.ok) throw new Error('Failed to create task');
+
+        await getTasks(); // Refresh list
+      } catch (error) {
+        document.getElementById('output').textContent = `Error: ${error.message}`;
+      }
+    }
+
+    async function deleteTask(taskId) {
+      if (!authToken) {
+        document.getElementById('output').textContent = 'Please login first.';
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5001/api/tasks/${taskId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          }
+        });
+
+        if (!res.ok) throw new Error('Failed to delete task');
+
+        await getTasks(); // Refresh list
+      } catch (error) {
+        document.getElementById('output').textContent = `Error: ${error.message}`;
+      }
+    }
+
+    async function updateTask(taskId, isDone) {
+      if (!authToken) {
+        document.getElementById('output').textContent = 'Please login first.';
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5001/api/tasks/${taskId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${authToken}`
+          },
+          body: JSON.stringify({ isDone })
+        });
+
+        if (!res.ok) throw new Error('Failed to update task');
+
+        await getTasks(); // Refresh list
+      } catch (error) {
+        document.getElementById('output').textContent = `Error: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
