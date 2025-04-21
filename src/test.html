@@ -38,24 +38,26 @@
 
     async function login() {
       try {
-        const res = await fetch('http://localhost:5001/api/auth/login', {
+        const res = await fetch('http://localhost:5001/api/auth/login',
+         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            // username: 'theashukumar007@gmail.com',
-            // password: 'Test@1234',
-            username: 'johndoe@yopmail.com',
-            password: '123456789'
+            username: 'theashukumar007@gmail.com',
+            password: 'Test@1234',
+            // username: 'johndoe@yopmail.com',
+            // password: '123456789'
           })
-        });
 
+        });
         if (!res.ok) throw new Error('Login failed');
 
         const data = await res.json();
         authToken = data.token;
         user = data.user;
+        await getTasks()
         document.getElementById('output').textContent = 'Login successful.';
         document.getElementById('username').textContent = user;
       } catch (error) {
