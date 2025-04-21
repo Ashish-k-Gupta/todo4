@@ -4,8 +4,8 @@ import { HashUtils } from "../utils/hash";
 import { AppError } from "../utils/errorHandler";
 
 export class AuthService {
-    static async login(email: string, password: string): Promise<string>{
-        const user = await UserService.findByEmail(email);
+    static async login(email: string, password: string){
+        const user:any = await UserService.findByEmail(email);
         if(!user) throw new AppError('Invalid Credentails', 409)
 
         const isMatch = await HashUtils.comparePassword(password, user.password)
@@ -13,7 +13,7 @@ export class AuthService {
         const token = jwt.sign({id: user.id}, process.env.JWT_SECRET!, {
             expiresIn: '1h'
         })
-        return token;
+        return {token, user:user?.username};
 
     }
 }

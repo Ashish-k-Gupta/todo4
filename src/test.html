@@ -15,6 +15,7 @@
   </style>
 </head>
 <body>
+    <h1>Username: <span id="username"></span> </h1>
   <h2>Login</h2>
   <button onclick="login()">Login</button>
 
@@ -43,8 +44,10 @@
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            username: 'theashukumar007@gmail.com',
-            password: 'Test@1234'
+            // username: 'theashukumar007@gmail.com',
+            // password: 'Test@1234',
+            username: 'johndoe@yopmail.com',
+            password: '123456789'
           })
         });
 
@@ -52,7 +55,9 @@
 
         const data = await res.json();
         authToken = data.token;
+        user = data.user;
         document.getElementById('output').textContent = 'Login successful.';
+        document.getElementById('username').textContent = user;
       } catch (error) {
         document.getElementById('output').textContent = `Error: ${error.message}`;
       }
