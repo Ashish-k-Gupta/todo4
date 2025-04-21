@@ -70,7 +70,7 @@ export const updateTask = async (req: any, res: Response, next: NextFunction) =>
             throw new AppError("User not authenticated", 401);
         }
 
-        const updatedTask = await TaskService.updateTask(taskId, userId, {
+        const updatedTask = await TaskService.updateTask(taskId, {
             title,
             description,
             isDone,
@@ -88,7 +88,7 @@ export const updateTask = async (req: any, res: Response, next: NextFunction) =>
     } catch (error) {
         console.error(error);
         if (error instanceof AppError) {
-            return res.status(error.statusCode).json({ message: error.message });
+            res.status(error.statusCode).json({ message: error.message });
         }
         res.status(500).json({ message: 'Internal Server Error' });
     }

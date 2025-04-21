@@ -6,6 +6,6 @@ const taskRoute = express.Router()
 
 taskRoute.post('/',protect, createTask)
 taskRoute.put('/:id', protect, updateTask)
-// taskRoute.get('/',protect, getTask )
+taskRoute.get('/',protect, getTask )
 
 export default taskRoute;
